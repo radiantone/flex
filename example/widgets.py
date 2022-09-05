@@ -49,7 +49,7 @@ Widget.create_table(skip_exists=True)
 
 """ Create a Button """
 button1 = Button(name="button one", quantity=5, id="button1")
-button1.save()
+#button1.save()
 
 """ Create a Widget """
 wid1 = Widget(name="widget one", quantity=10, id="widget1")
