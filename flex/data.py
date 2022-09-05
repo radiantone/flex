@@ -112,10 +112,10 @@ class DataclassBase:
         sql = f"SELECT * from {cls.__name__} where {where}"
         return cls.execute(sql, params, response=response)
 
-    def relation(self, cls, field, response=False):
+    def relation(self, cls, backref=None, response=False):
         execute = getattr(cls, "execute")
         objects = execute(
-            f'SELECT * FROM "{cls.__name__}" where {field}=?',
+            f'SELECT * FROM "{cls.__name__}" where {backref}=?',
             [self.id],
             response=response,
         )

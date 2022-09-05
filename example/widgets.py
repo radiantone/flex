@@ -25,7 +25,7 @@ class Widget(Inventory):
 
     @property
     def buttons(self) -> []:
-        buttons = self.relation(Button, 'widget')
+        buttons = self.relation(Button, backref='widget')
         return buttons
 
     @buttons.setter
