@@ -1,6 +1,6 @@
 <img src="./img/logo.png" width="200">
 
-_Dataclass aware ORM for DynamoDB_
+_Dataclass aware ORM with pluggable backends (DynamoDB included)_
 
 ## Usage
 
