@@ -65,15 +65,15 @@ class DataclassBase:
         table.put_item(Item=_dao)
 
     @class_or_instancemethod
-    def delete(cls_or_self, **kwargs):
-        logging.debug("Deleting %s", cls_or_self)
+    def delete(cls_or_self, *args, **kwargs):
+        logging.info("Deleting %s %s %s", cls_or_self, args, kwargs)
 
         if isinstance(cls_or_self, type):
-            logging.debug("DELETE CLASS METHOD")
+            logging.info("DELETE CLASS METHOD")
             table = cls_or_self.__name__
-            fields = kwargs
+            fields = args[0]
         else:
-            logging.debug("DELETE INSTANCE METHOD")
+            logging.info("DELETE INSTANCE METHOD")
             table = cls_or_self.__class__.__name__
             fields = {
                 cls_or_self.primary_key: getattr(cls_or_self, cls_or_self.primary_key),
@@ -92,7 +92,7 @@ class DataclassBase:
             params += [val]
 
         sql = f"DELETE from {table} where {where}"
-        logging.debug("SQL %s", sql)
+        logging.info("SQL %s %s", sql, params)
         return cls_or_self.execute(sql, params, response=True)
 
     @classmethod
