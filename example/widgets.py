@@ -32,9 +32,14 @@ class Widget(Inventory):
     def buttons(self, buttons: str) -> None:
         for button in buttons:
             button.widget = self.id
-            button.save()
 
         self._buttons = buttons
+
+    def save(self):
+        super(Widget, self).save()
+
+        for button in self._buttons:
+            button.save()
 
 
 """ Create tables """
@@ -83,7 +88,7 @@ print("DELETE widget1", wid1.delete().response)
 print("FIND2", Widget.find({'id': 'widget1', 'name': 'widget one'}))
 
 """ Delete widget2 using Class.delete(...) """
-print("DELETE widget2", Widget.delete({'id': 'widget2', 'quantity': 15}))
+#print("DELETE widget2", Widget.delete({'id': 'widget2', 'quantity': 15}))
 
 #results = Widget.execute(f"DELETE FROM \"Widget\" WHERE quantity=? and name='widget one' and id=?", [10, 'widget1'])
 #print(results)
