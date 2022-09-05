@@ -84,10 +84,13 @@ for result in results.all():
     print("RESULT:", result,  result.buttons)
 
 """ Delete widget instance using instance method"""
-print("DELETE", wid1.delete().response)
+print("DELETE widget1", wid1.delete().response)
 
 """ Try to find deleted object """
 print("FIND2", Widget.find({'id': 'widget1', 'name': 'widget one'}))
+
+""" Delete widget2 using Class.delete(...) """
+print("DELETE widget2", Widget.delete({'id': 'widget2', 'quantity': 15}))
 
 #results = Widget.execute(f"DELETE FROM \"Widget\" WHERE quantity=? and name='widget one' and id=?", [10, 'widget1'])
 #print(results)
