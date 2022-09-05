@@ -119,7 +119,7 @@ setup(
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
-    packages=['flex', 'flex.json', 'flex.cli', 'tests'],
+    packages=['flex', 'flex.json', 'flex.backends', 'flex.cli', 'tests'],
     include_package_data=True,
     python_requires=">=3.8.*",
     install_requires=[
