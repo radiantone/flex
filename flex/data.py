@@ -1,7 +1,8 @@
 import logging
+import time
+
 from dataclasses import asdict, dataclass
 from flex.backends import FlexBackendFactory
-
 
 logging.basicConfig(
     level=logging.INFO,
@@ -24,8 +25,16 @@ backend = FlexBackendFactory.get()
 
 @dataclass
 class DataclassBase:
-    name: str = "None"
+    from datetime import datetime
+    curr_dt = datetime.now()
+
+    timestamp = int(round(curr_dt.timestamp()))
+
     id: str = "inv1"
+    name: str = "None"
+
+    timestamp: int = timestamp
+    updated: int = timestamp
 
     @classmethod
     @property
@@ -35,10 +44,14 @@ class DataclassBase:
     @classmethod
     @property
     def sort_key(cls) -> str:
-        return "name"
+        return "timestamp"
 
-    def save(self):
+    def save(self, create_table=True):
+        self.__class__.create_table(skip_exists=True)
         return backend.save(self)
+
+    def fields(self):
+        return [d for d in dir(self) if d.find('_') != 0 and (type(getattr(self, d)) == str or type(getattr(self, d)) == int or type(getattr(self, d)) == dict)]
 
     @class_or_instancemethod
     def delete(cls_or_self, *args, **kwargs):

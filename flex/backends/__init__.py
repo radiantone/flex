@@ -39,6 +39,7 @@ class FlexBackend(ABC):
 
 class DynamoDBBackend(FlexBackend):
     import boto3
+    import time
 
     TYPES = {"str": "S", "int": "N"}
 
@@ -46,9 +47,16 @@ class DynamoDBBackend(FlexBackend):
 
     def save(self, dataobject):
         _dao = asdict(dataobject)
-
+        logging.info("Saving %s",_dao)
         table = self.dynamodb.Table(dataobject.__class__.__name__)
 
+        from datetime import datetime
+        curr_dt = datetime.now()
+
+        timestamp = int(round(curr_dt.timestamp()))
+
+        if hasattr(dataobject,'updated'):
+            setattr(dataobject, 'updated', timestamp)
         table.put_item(Item=_dao)
 
         return True
