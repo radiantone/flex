@@ -1,11 +1,11 @@
-import json
 import copy
 import dataclasses
+import json
 import re
 
 
 class DataclassEncoder(json.JSONEncoder):
-    is_special = re.compile(r'^__[^\d\W]\w*__\Z', re.UNICODE)  # Dunder name.
+    is_special = re.compile(r"^__[^\d\W]\w*__\Z", re.UNICODE)  # Dunder name.
 
     def default(self, obj):
         return self._asdict(obj)
@@ -28,12 +28,17 @@ class DataclassEncoder(json.JSONEncoder):
                 if not is_special(name) and isinstance(attr, property):
                     result.append((name, attr.__get__(obj)))  # Get property's value.
             return dict_factory(result)
-        elif isinstance(obj, tuple) and hasattr(obj, '_fields'):
+        elif isinstance(obj, tuple) and hasattr(obj, "_fields"):
             return type(obj)(*[self._asdict_inner(v, dict_factory) for v in obj])
         elif isinstance(obj, (list, tuple)):
             return type(obj)(self._asdict_inner(v, dict_factory) for v in obj)
         elif isinstance(obj, dict):
-            return type(obj)((self._asdict_inner(k, dict_factory),
-                              self._asdict_inner(v, dict_factory)) for k, v in obj.items())
+            return type(obj)(
+                (
+                    self._asdict_inner(k, dict_factory),
+                    self._asdict_inner(v, dict_factory),
+                )
+                for k, v in obj.items()
+            )
         else:
             return copy.deepcopy(obj)

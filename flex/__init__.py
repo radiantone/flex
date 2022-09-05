@@ -1,4 +1,7 @@
 from .data import DataclassBase
 from .json import DataclassEncoder
 
-__all___ = ['DataclassEncoder', 'DataclassBase']
+DataclassEncoder
+DataclassBase
+
+__all___ = ["DataclassEncoder", "DataclassBase"]

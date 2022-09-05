@@ -1,4 +1,8 @@
 import logging
+from dataclasses import asdict, dataclass
+
+import boto3
+import botocore.exceptions
 
 logging.basicConfig(
     level=logging.INFO,
@@ -9,55 +13,34 @@ logging.basicConfig(
     "%(message)s",
 )
 
-
-import boto3
-from dataclasses import dataclass,asdict
-import botocore.exceptions
-
-dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8009')
+dynamodb = boto3.resource("dynamodb", endpoint_url="http://localhost:8009")
 
 
 def persist_data(dataobject):
     schema = {
-        'TableName': dataobject.__name__,
-        'KeySchema': [
-            {
-                "AttributeName": dataobject.primary_key,
-                "KeyType": "HASH"
-            },
-            {
-                "AttributeName": dataobject.sort_key,
-                "KeyType": "RANGE"
-            }
+        "TableName": dataobject.__name__,
+        "KeySchema": [
+            {"AttributeName": dataobject.primary_key, "KeyType": "HASH"},
+            {"AttributeName": dataobject.sort_key, "KeyType": "RANGE"},
         ],
-        'AttributeDefinitions': [
-            {
-                "AttributeName": dataobject.primary_key,
-                "AttributeType": "S"
-            },
-            {
-                "AttributeName": dataobject.sort_key,
-                "AttributeType": "N"
-            }
+        "AttributeDefinitions": [
+            {"AttributeName": dataobject.primary_key, "AttributeType": "S"},
+            {"AttributeName": dataobject.sort_key, "AttributeType": "N"},
         ],
-        'ProvisionedThroughput': {
-            'ReadCapacityUnits': 10,
-            'WriteCapacityUnits': 10
-        }
+        "ProvisionedThroughput": {"ReadCapacityUnits": 10, "WriteCapacityUnits": 10},
     }
 
     return schema
 
 
-TYPES = {
-    'str': 'S',
-    'int': 'N'
-}
+TYPES = {"str": "S", "int": "N"}
+
 
 class class_or_instancemethod(classmethod):
     def __get__(self, instance, type_):
         descr_get = super().__get__ if instance is None else self.__func__.__get__
         return descr_get(instance, type_)
+
 
 @dataclass
 class DataclassBase:
@@ -67,12 +50,12 @@ class DataclassBase:
     @classmethod
     @property
     def primary_key(cls) -> str:
-        return 'id'
+        return "id"
 
     @classmethod
     @property
     def sort_key(cls) -> str:
-        return 'name'
+        return "name"
 
     def save(self):
         _dao = asdict(self)
@@ -92,7 +75,10 @@ class DataclassBase:
         else:
             logging.debug("DELETE INSTANCE METHOD")
             table = cls_or_self.__class__.__name__
-            fields = { cls_or_self.primary_key: getattr(cls_or_self,cls_or_self.primary_key), cls_or_self.sort_key: getattr(cls_or_self,cls_or_self.sort_key) }
+            fields = {
+                cls_or_self.primary_key: getattr(cls_or_self, cls_or_self.primary_key),
+                cls_or_self.sort_key: getattr(cls_or_self, cls_or_self.sort_key),
+            }
 
         where = ""
         params = []
@@ -102,7 +88,7 @@ class DataclassBase:
             if len(where) > 0:
                 where += " AND "
 
-            where += field+"=?"
+            where += field + "=?"
             params += [val]
 
         sql = f"DELETE from {table} where {where}"
@@ -120,15 +106,19 @@ class DataclassBase:
             if len(where) > 0:
                 where += " AND "
 
-            where += field+"=?"
+            where += field + "=?"
             params += [val]
 
         sql = f"SELECT * from {cls.__name__} where {where}"
         return cls.execute(sql, params, response=response)
 
     def relation(self, cls, field, response=False):
-        execute = getattr(cls,'execute')
-        objects = execute(f"SELECT * FROM \"{cls.__name__}\" where {field}=?", [self.id], response=response)
+        execute = getattr(cls, "execute")
+        objects = execute(
+            f'SELECT * FROM "{cls.__name__}" where {field}=?',
+            [self.id],
+            response=response,
+        )
         return objects
 
     @classmethod
@@ -142,33 +132,37 @@ class DataclassBase:
                 self.response = response
 
             def all(self):
-                return [cls(**item) for item in  self.response['Items']]
+                return [cls(**item) for item in self.response["Items"]]
 
             def first(self):
-                return [cls(**item) for item in  self.response['Items']][0]
+                return [cls(**item) for item in self.response["Items"]][0]
 
             def last(self):
-                return [cls(**item) for item in  self.response['Items']][-1]
-
+                return [cls(**item) for item in self.response["Items"]][-1]
 
         try:
             output = dynamodb.meta.client.execute_statement(
-                Statement=statement, Parameters=params)
+                Statement=statement, Parameters=params
+            )
         except botocore.exceptions.ClientError as err:
-            if err.response['Error']['Code'] == 'ResourceNotFoundException':
+            if err.response["Error"]["Code"] == "ResourceNotFoundException":
                 logging.error(
                     "Couldn't execute PartiQL '%s' because the table does not exist.",
-                    statement)
+                    statement,
+                )
             else:
                 logging.error(
-                    "Couldn't execute PartiQL '%s'. Here's why: %s: %s", statement,
-                    err.response['Error']['Code'], err.response['Error']['Message'])
+                    "Couldn't execute PartiQL '%s'. Here's why: %s: %s",
+                    statement,
+                    err.response["Error"]["Code"],
+                    err.response["Error"]["Message"],
+                )
             raise
         else:
             if response:
                 return ResultList(output)
             else:
-                return [cls(**item) for item in  output['Items']] #ResultList(output)
+                return [cls(**item) for item in output["Items"]]  # ResultList(output)
 
     @classmethod
     def create_table(cls, skip_exists=False):
@@ -199,6 +193,3 @@ class DataclassBase:
                 raise ex
 
         return schema
-
-
-
