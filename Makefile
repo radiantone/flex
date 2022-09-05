@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := all
-black = black --target-version py39 emerge
-isort = isort --profile black emerge
+black = black --target-version py39 flex
+isort = isort --profile black flex
 
 .PHONY: depends
 depends:
@@ -19,8 +19,8 @@ format:
 
 .PHONY: lint
 lint: setup-install
-	mypy --show-error-codes  --ignore-missing-imports emerge
-	flake8 --ignore=E203,F841,E501,E722,W503  emerge
+	mypy --show-error-codes  --ignore-missing-imports flex
+	flake8 --ignore=E203,F841,E501,E722,W503  flex
 	$(isort) --check-only --df
 	$(black) --check --diff
 
@@ -36,8 +36,8 @@ install: depends init
 
 .PHONY: update
 update: format lint
-	pip freeze | grep -v emerge > requirements.txt
-	git add setup.py docs bin emerge requirements.txt Makefile
+	pip freeze | grep -v flex > requirements.txt
+	git add setup.py docs bin flex requirements.txt Makefile
 	git commit --allow-empty -m "Updates"
 	git push origin main
 	python setup.py install
