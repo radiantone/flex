@@ -4,13 +4,16 @@ isort = isort --profile black flex
 
 .PHONY: depends
 depends:
-	bash ./bin/depends.sh
+	@echo "Installing OS dependencies..."
+	@bash ./bin/depends.sh
+	@echo "Done"
 
 .PHONY: init
 init: depends
-	echo "Setting up virtual environment in venv/"
-	python3 -m venv venv
-	echo "Virtual environment complete."
+	@echo "Setting up virtual environment in venv/"
+	@python3 -m venv venv
+	@echo "Virtual environment complete."
+
 
 .PHONY: format
 format:
@@ -30,9 +33,12 @@ setup-install:
 
 .PHONY: install
 install: depends init
-	pip install -r requirements.txt
-	python setup.py install
-	python setup.py clean
+	. venv/bin/activate && ( \
+	pip install -r requirements.txt ; \
+	python setup.py install ; \
+	python setup.py clean \
+	)
+
 
 .PHONY: update
 update: format lint

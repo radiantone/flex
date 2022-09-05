@@ -2,12 +2,30 @@
 
 _Dataclass aware ORM with pluggable backends (DynamoDB included)_
 
-## Usage
+## Install
+Install virtual environment and dependencies using `make install`
+```bash
+$ make install
+$ source venv/bin/activate
+(venv) $ 
 
+```
+## Run
+Start the compose stack, which runs local versions of dynamodb and api gateway
+```bash
+(venv) $ docker compose up -d 
+```
+
+## Usage
+Run the example below using:
+```bash
+(venv) $ python example/widgets.py
+````
+
+### Examples
 ```python
 from dataclasses import dataclass
 from flex import DataclassBase
-
 
 @dataclass
 class Inventory(DataclassBase):
@@ -39,19 +57,24 @@ class Widget(Inventory):
     def buttons(self, buttons: str) -> None:
         for button in buttons:
             button.widget = self.id
-            button.save()
 
         self._buttons = buttons
 
+    def save(self):
+        super(Widget, self).save()
 
+        for button in self._buttons:
+            button.save()
+
+
+# SCENARIO 1:
+# Create table, Button, Widget, Add Buton to Widget. Save Widget
 """ Create tables """
 Button.create_table(skip_exists=True)
-Inventory.create_table(skip_exists=True)
 Widget.create_table(skip_exists=True)
 
 """ Create a Button """
 button1 = Button(name="button one", quantity=5, id="button1")
-button1.save()
 
 """ Create a Widget """
 wid1 = Widget(name="widget one", quantity=10, id="widget1")
@@ -66,32 +89,46 @@ wid1.save()
 wid2 = Widget(name="widget two", quantity=15, id="widget2")
 wid2.save()
 
+# SCENARIO 2:
+# Issue SQL to find Widgets
+""" Execute arbitrary SQL on the Widget table """
+results = Widget.execute(f"SELECT * FROM \"Widget\" WHERE quantity<? and id=?", [15, 'widget1'])
+for result in results:
+    print("RESULT:", result,  result.buttons)
+
+# Find widgets using template object
+""" Find Widget objects using template """
+results = Widget.find({'id': 'widget1'}, response=True)
+print("FIND:", results.response)
+
+for result in results.all():
+    print("RESULT:", result,  result.buttons)
+
+# SCENARIO 3:
+# Delete specific widget by instance
+""" Delete widget instance using instance method"""
+print("DELETE widget1", wid1.delete().response)
+
+# SCENARIO 4:
+# Delete specific widget by template object
+""" Try to find deleted object """
+print("FIND2", Widget.find({'id': 'widget1', 'name': 'widget one'}))
+
+# SCENARIO 5:
+# Create table, Add Inventory Items
+""" Create tables """
+Inventory.create_table(skip_exists=True)
+
 """ Create some Inventory objects and save them """
 inv = Inventory(name="item", quantity=10, id="item1")
 inv.save()
 inv = Inventory(name="item", quantity=20, id="item2")
 inv.save()
 
-""" Execute arbitrary SQL on the Widget table """
-results = Widget.execute(f"SELECT * FROM \"Widget\" WHERE quantity<? and id=?", [15, 'widget1'])
-for result in results:
-    print("RESULT:", result,  result.buttons)
-
-""" Find Widget objects using template """
-results = Widget.find({'id': 'widget1'}, response=True)
-print("FIND:", results.response)
-for result in results.all():
-    print("RESULT:", result,  result.buttons)
-
-""" Delete widget instance using instance method"""
-print("DELETE widget1", wid1.delete().response)
-
-""" Try to find deleted object """
-print("FIND2", Widget.find({'id': 'widget1', 'name': 'widget one'}))
-
-""" Delete widget2 using Class.delete(...) """
+""" Delete widget2 using Class.delete(...) 
 print("DELETE widget2", Widget.delete({'id': 'widget2', 'quantity': 15}))
 
-#results = Widget.execute(f"DELETE FROM \"Widget\" WHERE quantity=? and name='widget one' and id=?", [10, 'widget1'])
-#print(results)
+results = Widget.execute(f"DELETE FROM \"Widget\" WHERE quantity=? and name='widget one' and id=?", [10, 'widget1'])
+print(results)
+"""
 ```
