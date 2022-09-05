@@ -22,7 +22,7 @@ format:
 
 .PHONY: lint
 lint: setup-install
-	mypy --show-error-codes  --ignore-missing-imports flex
+	#mypy --show-error-codes  --ignore-missing-imports flex
 	flake8 --ignore=E203,F841,E501,E722,W503  flex
 	$(isort) --check-only --df
 	$(black) --check --diff

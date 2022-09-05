@@ -1,7 +1,6 @@
 import logging
-import time
+from dataclasses import dataclass
 
-from dataclasses import asdict, dataclass
 from flex.backends import FlexBackendFactory
 
 logging.basicConfig(
@@ -26,6 +25,7 @@ backend = FlexBackendFactory.get()
 @dataclass
 class DataclassBase:
     from datetime import datetime
+
     curr_dt = datetime.now()
 
     timestamp = int(round(curr_dt.timestamp()))
@@ -51,7 +51,16 @@ class DataclassBase:
         return backend.save(self)
 
     def fields(self):
-        return [d for d in dir(self) if d.find('_') != 0 and (type(getattr(self, d)) == str or type(getattr(self, d)) == int or type(getattr(self, d)) == dict)]
+        return [
+            d
+            for d in dir(self)
+            if d.find("_") != 0
+            and (
+                type(getattr(self, d)) == str
+                or type(getattr(self, d)) == int
+                or type(getattr(self, d)) == dict
+            )
+        ]
 
     @class_or_instancemethod
     def delete(cls_or_self, *args, **kwargs):
