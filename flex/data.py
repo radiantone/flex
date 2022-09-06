@@ -23,7 +23,7 @@ backend = FlexBackendFactory.get()
 
 
 @dataclass
-class DataclassBase:
+class FlexObject:
     from datetime import datetime
 
     curr_dt = datetime.now()

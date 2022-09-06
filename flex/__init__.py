@@ -1,7 +1,7 @@
-from .data import DataclassBase
+from .data import FlexObject
 from .json import DataclassEncoder
 
 DataclassEncoder
-DataclassBase
+FlexObject
 
-__all___ = ["DataclassEncoder", "DataclassBase"]
+__all___ = ["DataclassEncoder", "FlexObject"]

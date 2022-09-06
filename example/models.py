@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from flex import DataclassBase
+from flex import FlexObject
 
 
 @dataclass
-class Inventory(DataclassBase):
+class Inventory(FlexObject):
     quantity: int = 0
 
     @classmethod
@@ -29,7 +29,7 @@ class Widget(Inventory):
         return buttons
 
     @buttons.setter
-    def buttons(self, buttons: str) -> None:
+    def buttons(self, buttons: []) -> None:
         for button in buttons:
             button.widget = self.id
 

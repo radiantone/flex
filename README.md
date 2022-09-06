@@ -23,12 +23,14 @@ Run the example below using:
 ````
 
 ### Examples
+
 ```python
 from dataclasses import dataclass
-from flex import DataclassBase
+from flex import FlexObject
+
 
 @dataclass
-class Inventory(DataclassBase):
+class Inventory(FlexObject):
     quantity: int = 0
 
     @classmethod
@@ -94,7 +96,7 @@ wid2.save()
 """ Execute arbitrary SQL on the Widget table """
 results = Widget.execute(f"SELECT * FROM \"Widget\" WHERE quantity<? and id=?", [15, 'widget1'])
 for result in results:
-    print("RESULT:", result,  result.buttons)
+    print("RESULT:", result, result.buttons)
 
 # Find widgets using template object
 """ Find Widget objects using template """
@@ -102,7 +104,7 @@ results = Widget.find({'id': 'widget1'}, response=True)
 print("FIND:", results.response)
 
 for result in results.all():
-    print("RESULT:", result,  result.buttons)
+    print("RESULT:", result, result.buttons)
 
 # SCENARIO 3:
 # Delete specific widget by instance
