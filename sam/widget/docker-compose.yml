@@ -1,0 +1,40 @@
+version: '3.5'
+services:
+  api:                                                                                                                                
+    image: my-sam
+    volumes:                                                                                                                          
+      - /var/run/docker.sock:/var/run/docker.sock:ro                                                                                  
+      - .:/var/opt:ro                                                                                                                 
+    ports:                                                                                                                            
+      - 3000                                                                                                                          
+    command: sam local start-api --docker-network my-net -v "$PWD" --host 0.0.0.0 --debug
+
+  lambda:
+    image: my-sam
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - .:/var/opt:ro
+    ports:
+      - 3001
+    command: sam local start-lambda  --docker-network my-net -v "$PWD" --host 0.0.0.0 --debug
+
+  dynamodb:
+    image: amazon/dynamodb-local:1.11.477
+    volumes:
+      - dynamodb-data:/data
+    ports:
+      - 8000
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/localhost/8000 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+    user: root
+    command: -jar DynamoDBLocal.jar -sharedDb -dbPath /data
+
+volumes:                                                                                                                              
+  dynamodb-data:
+
+networks:
+  default:
+    name: my-net

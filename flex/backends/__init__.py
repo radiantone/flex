@@ -1,6 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import asdict
+import os
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,13 +36,30 @@ class FlexBackend(ABC):
 
 
 class DynamoDBBackend(FlexBackend):
-    import time
-
     import boto3
 
     TYPES = {"str": "S", "int": "N"}
 
-    dynamodb = boto3.resource("dynamodb", endpoint_url="http://localhost:8009")
+    dynamodb = boto3.resource("dynamodb", endpoint_url=os.environ['DYNAMODB'])
+
+    class ResultList:
+        response = None
+
+        def __init__(self, cls, response):
+            self.response = response
+            self.cls = cls
+
+        def all(self):
+            return [self.cls(**item) for item in self.response["Items"]]
+
+        def first(self):
+            return [self.cls(**item) for item in self.response["Items"]][0]
+
+        def last(self):
+            return [self.cls(**item) for item in self.response["Items"]][-1]
+
+        def next(self):
+            pass
 
     def save(self, dataobject):
         _dao = asdict(dataobject)
@@ -120,20 +138,6 @@ class DynamoDBBackend(FlexBackend):
 
         logging.debug("EXECUTE %s %s", statement, params)
 
-        class ResultList:
-            response = None
-
-            def __init__(self, response):
-                self.response = response
-
-            def all(self):
-                return [cls(**item) for item in self.response["Items"]]
-
-            def first(self):
-                return [cls(**item) for item in self.response["Items"]][0]
-
-            def last(self):
-                return [cls(**item) for item in self.response["Items"]][-1]
 
         try:
             output = self.dynamodb.meta.client.execute_statement(
@@ -155,7 +159,7 @@ class DynamoDBBackend(FlexBackend):
             raise
         else:
             if response:
-                return ResultList(output)
+                return self.ResultList(cls, output)
             else:
                 return [cls(**item) for item in output["Items"]]  # ResultList(output)
 

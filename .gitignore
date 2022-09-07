@@ -1,4 +1,7 @@
-catalog
+sam/widget/flex
+/**/*.python-version
+/**/*.aws-sam
+.old
 .scratch
 .tmp
 diary.md
