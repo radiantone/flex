@@ -1,9 +1,9 @@
 import json
-import flex
 from example.models import Widget
 
 
 def lambda_handler(event, context):
+    print(event, context)
     widgets = Widget.find({'id': 'widget1'})
 
     return {
