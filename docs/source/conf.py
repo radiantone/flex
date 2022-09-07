@@ -17,12 +17,12 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'PCB'
-copyright = '2022, Darren Govoni'
+project = 'Flex'
+copyright = '2022-2026, Darren Govoni'
 author = 'Darren Govoni'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.0.1'
 
 
 # -- General configuration ---------------------------------------------------

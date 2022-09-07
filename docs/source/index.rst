@@ -3,15 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PCB's documentation!
+Welcome to Flex's documentation!
 ==================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-.. click:: pcb.cli:cli
-   :prog: PCB
+.. click:: flex.cli:cli
+   :prog: Flex
    :nested: full
 
 
