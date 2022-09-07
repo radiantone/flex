@@ -1,7 +1,7 @@
 import logging
+import os
 from abc import ABC, abstractmethod
 from dataclasses import asdict
-import os
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,7 +40,7 @@ class DynamoDBBackend(FlexBackend):
 
     TYPES = {"str": "S", "int": "N"}
 
-    dynamodb = boto3.resource("dynamodb", endpoint_url=os.environ['DYNAMODB'])
+    dynamodb = boto3.resource("dynamodb", endpoint_url=os.environ["DYNAMODB"])
 
     class ResultList:
         response = None
@@ -137,7 +137,6 @@ class DynamoDBBackend(FlexBackend):
         import botocore
 
         logging.debug("EXECUTE %s %s", statement, params)
-
 
         try:
             output = self.dynamodb.meta.client.execute_statement(
