@@ -34,6 +34,10 @@ quote:
 widget:
 	sam local invoke --force-image-build "WidgetFunction" -e events/widget.json
 
+.PHONE: fast
+fast:
+	sam local invoke --force-image-build "FastFunction" -e events/hello.json
+
 .PHONY: run
 run:
 	sam local invoke --force-image-build "WidgetFunction" -e events/widget.json

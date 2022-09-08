@@ -23,6 +23,23 @@ Resources:
       Description: Provides the base backend shared library and dependencies
       LayerName: shared-layer
 
+  FastFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: lambdas/fast/
+      Handler: app.handler
+      Layers:
+        - !Ref SharedLayer
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        Widget:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /hello
+            Method: get
+
   QuoteFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -65,7 +82,7 @@ Outputs:
     Description: "API Gateway endpoint URL for Prod stage for Widget function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/widget/"
   WidgetFunction:
-    Description: "Widget  Lambda Function ARN"
+    Description: "Widget Lambda Function ARN"
     Value: !GetAtt WidgetFunction.Arn
   WidgetFunctionIamRole:
     Description: "Implicit IAM Role created for Widget function"
@@ -75,8 +92,18 @@ Outputs:
     Description: "API Gateway endpoint URL for Prod stage for Quote function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/quote/"
   QuoteFunction:
-    Description: "Quote  Lambda Function ARN"
+    Description: "Quote Lambda Function ARN"
     Value: !GetAtt QuoteFunction.Arn
   QuoteFunctionIamRole:
     Description: "Implicit IAM Role created for Quote function"
     Value: !GetAtt QuoteFunctionRole.Arn
+
+  FastApi:
+    Description: "API Gateway endpoint URL for Prod stage for Fast function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/fast/"
+  FastFunction:
+    Description: "Fast Lambda Function ARN"
+    Value: !GetAtt FastFunction.Arn
+  FastFunctionIamRole:
+    Description: "Implicit IAM Role created for Fast function"
+    Value: !GetAtt FastFunctionRole.Arn
