@@ -1,0 +1,5 @@
+flask
+aws-wsgi
+fastapi
+mangum
+fastapi_versioning

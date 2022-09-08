@@ -1,7 +1,7 @@
 import logging
-from dataclasses import dataclass
 
 from flex.backends import FlexBackendFactory
+from pydantic.dataclasses import dataclass
 
 logging.basicConfig(
     level=logging.INFO,

@@ -1,17 +1,16 @@
-import awsgi
+import json
 from example.models import Widget
-from flask import Flask, jsonify
-
-app = Flask(__name__)
-
-
-@app.route("/widget/<id>")
-def widget(id):
-
-    widget = Widget.find({'id': id})
-
-    return jsonify(widget[0])
 
 
 def lambda_handler(event, context):
-    return awsgi.response(app, event, context, base64_content_types={"image/png"})
+    print(event, context)
+    widgets = Widget.find({'id': 'widget1'})
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({
+            "message": "flex:hello world",
+            "widget": str(widgets[0])
+            # "location": ip.text.replace("\n", "")
+        }),
+    }

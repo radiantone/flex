@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  widget app
+  serverless app
 
-  Widget API
+  Sample Serverless APIs
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -23,7 +23,24 @@ Resources:
       Description: Provides the base backend shared library and dependencies
       LayerName: shared-layer
 
-  FastFunction:
+  CatalogAssetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/catalog/
+      Handler: app.handler
+      Layers:
+        - !Ref SharedLayer
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        Widget:
+          Type: Api
+          Properties:
+            Path: /asset/{assetid}
+            Method: get
+
+  HelloV3Function:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: lambdas/fast/
@@ -37,8 +54,98 @@ Resources:
         Widget:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /hello
+            Path: /v3_0/hello
             Method: get
+
+  CatalogFileFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: lambdas/catalog/
+      Handler: app.handler
+      Timeout: 10
+      Layers:
+        - !Ref SharedLayer
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        File:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /static/catalog/{file}
+            Method: get
+
+  HelloFileFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: lambdas/fast/
+      Handler: app.handler
+      Timeout: 10
+      Layers:
+        - !Ref SharedLayer
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        File:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /static/hello/{file}
+            Method: get
+
+  HelloV2Function:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: lambdas/fast/
+      Handler: app.handler
+      Layers:
+        - !Ref SharedLayer
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        Widget:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /v2_0/hello
+            Method: get
+
+  HelloAPIDocsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      Timeout: 10
+      CodeUri: lambdas/fast/
+      Handler: app.handler
+      Layers:
+        - !Ref SharedLayer
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        Widget:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /hello/docs
+            Method: get
+
+  CatalogAPIDocsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      Timeout: 10
+      CodeUri: lambdas/catalog/
+      Handler: app.handler
+      Layers:
+        - !Ref SharedLayer
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        Widget:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /catalog/docs
+            Method: get
+
 
   QuoteFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -98,12 +205,72 @@ Outputs:
     Description: "Implicit IAM Role created for Quote function"
     Value: !GetAtt QuoteFunctionRole.Arn
 
-  FastApi:
+  HelloFileApi:
     Description: "API Gateway endpoint URL for Prod stage for Fast function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/fast/"
-  FastFunction:
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/file/catalog"
+  HelloFileFunction:
     Description: "Fast Lambda Function ARN"
-    Value: !GetAtt FastFunction.Arn
-  FastFunctionIamRole:
+    Value: !GetAtt HelloFileFunction.Arn
+  HelloFileFunctionIamRole:
     Description: "Implicit IAM Role created for Fast function"
-    Value: !GetAtt FastFunctionRole.Arn
+    Value: !GetAtt HelloFileFunctionRole.Arn
+
+  CatalogFileApi:
+    Description: "API Gateway endpoint URL for Prod stage for Fast function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/file/catalog"
+  CatalogFileFunction:
+    Description: "Fast Lambda Function ARN"
+    Value: !GetAtt   CatalogFileFunction.Arn
+  CatalogFileFunctionIamRole:
+    Description: "Implicit IAM Role created for Fast function"
+    Value: !GetAtt CatalogFileFunctionRole.Arn
+
+  CatalogAssetApi:
+    Description: "API Gateway endpoint URL for Prod stage for Fast function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/asset/"
+  CatalogAssetFunction:
+    Description: "Fast Lambda Function ARN"
+    Value: !GetAtt CatalogAssetFunction.Arn
+  CatalogAssetFunctionIamRole:
+    Description: "Implicit IAM Role created for Fast function"
+    Value: !GetAtt CatalogAssetFunctionRole.Arn
+
+  HelloV2Api:
+    Description: "API Gateway endpoint URL for Prod stage for Fast function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/v2_0/hello/"
+  HelloV2Function:
+    Description: "Fast Lambda Function ARN"
+    Value: !GetAtt HelloV2Function.Arn
+  HelloV2FunctionIamRole:
+    Description: "Implicit IAM Role created for Fast function"
+    Value: !GetAtt HelloV2FunctionRole.Arn
+
+  CatalogAPIDocsApi:
+    Description: "API Gateway endpoint URL for Prod stage for Fast function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/catalog/docs"
+  CatalogAPIDocsFunction:
+    Description: "Fast Lambda Function ARN"
+    Value: !GetAtt CatalogAPIDocsApiDocsFunction.Arn
+  CatalogAPIDocsFunctionIamRole:
+    Description: "Implicit IAM Role created for Fast function"
+    Value: !GetAtt CatalogAPIDocsApiFunctionRole.Arn
+
+  HelloAPIDocsApi:
+    Description: "API Gateway endpoint URL for Prod stage for Fast function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/docs"
+  HelloAPIDocsFunction:
+    Description: "Fast Lambda Function ARN"
+    Value: !GetAtt HelloAPIDocsApiDocsFunction.Arn
+  HelloAPIDocsFunctionIamRole:
+    Description: "Implicit IAM Role created for Fast function"
+    Value: !GetAtt HelloAPIDocsApiFunctionRole.Arn
+
+  HelloV3Api:
+    Description: "API Gateway endpoint URL for Prod stage for Fast function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/v3_0/hello/"
+  HelloV3Function:
+    Description: "Fast Lambda Function ARN"
+    Value: !GetAtt HelloV3Function.Arn
+  HelloV3FunctionIamRole:
+    Description: "Implicit IAM Role created for Fast function"
+    Value: !GetAtt HelloV3FunctionRole.Arn
