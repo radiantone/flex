@@ -3,3 +3,4 @@ aws-wsgi
 fastapi
 mangum
 fastapi_versioning
+pydantic

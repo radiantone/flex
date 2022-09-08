@@ -1,4 +1,3 @@
-
 from flex.data import FlexObject
 from dataclasses import dataclass, field
 
