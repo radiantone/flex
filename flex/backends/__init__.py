@@ -59,7 +59,7 @@ class DynamoDBBackend(FlexBackend):
             return [self.cls(**item) for item in self.response["Items"]][-1]
 
         def next(self):
-            pass
+            return "NEXT PAGE"
 
     def save(self, dataobject):
         _dao = asdict(dataobject)
@@ -133,14 +133,27 @@ class DynamoDBBackend(FlexBackend):
         )
         return objects
 
-    def execute(self, cls, statement, params, response=False):
+    """
+    ConsistentRead=True|False,
+    NextToken='string',
+    ReturnConsumedCapacity='INDEXES'|'TOTAL'|'NONE',
+    Limit=123"""
+    def execute(self, cls, statement, params, response=False, consistentread=True, nexttoken=None, returnconsumedcapacity='NONE', limit=1):
         import botocore
 
         logging.debug("EXECUTE %s %s", statement, params)
 
+        kwargs = {
+            'ConsistentRead': consistentread,
+            'ReturnConsumedCapacity': returnconsumedcapacity
+            #'Limit': limit
+        }
+        if nexttoken:
+            kwargs['NextToken'] = nexttoken
+
         try:
             output = self.dynamodb.meta.client.execute_statement(
-                Statement=statement, Parameters=params
+                Statement=statement, Parameters=params, **kwargs
             )
         except botocore.exceptions.ClientError as err:
             if err.response["Error"]["Code"] == "ResourceNotFoundException":

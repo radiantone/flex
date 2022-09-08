@@ -41,7 +41,7 @@ for result in results.all():
 # SCENARIO 3:
 # Delete specific widget by instance
 """ Delete widget instance using instance method"""
-print("DELETE widget1", wid2.delete().response)
+#print("DELETE widget1", wid2.delete().response)
 
 
 # SCENARIO 4:

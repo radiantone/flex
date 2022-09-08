@@ -26,13 +26,23 @@ prepare:
 build: prepare
 	sam build
 
+.PHONE: quote
+quote:
+	sam local invoke --force-image-build "QuoteFunction" -e events/quote.json
+
+.PHONE: widget
+widget:
+	sam local invoke --force-image-build "WidgetFunction" -e events/widget.json
+
 .PHONY: run
 run:
-	sam local invoke --force-image-build "WidgetFunction" -e events/event.json
+	sam local invoke --force-image-build "WidgetFunction" -e events/widget.json
+	sam local invoke --force-image-build "QuoteFunction" -e events/quote.json
 
 .PHONY: all
 all: build
-	sam local invoke --force-image-build "WidgetFunction" -e events/event.json
+	sam local invoke --force-image-build "WidgetFunction" -e events/widget.json
+	sam local invoke --force-image-build "QuoteFunction" -e events/quote.json
 
 
 .PHONY: clean

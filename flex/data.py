@@ -74,8 +74,20 @@ class FlexObject:
         return backend.relation(self, cls, backref=backref, response=response)
 
     @classmethod
-    def execute(cls, statement, params, response=False):
-        return backend.execute(cls, statement, params, response=response)
+    def execute(cls, statement, params, response=False, consistentread=True, nexttoken=None,
+                returnconsumedcapacity='NONE', limit=1):
+
+        kwargs = {
+            'consistentread':consistentread,
+            'returnconsumedcapacity': returnconsumedcapacity,
+            'limit':limit
+        }
+        if nexttoken:
+            kwargs['nexttoken'] = nexttoken
+
+        print(kwargs)
+
+        return backend.execute(cls, statement, params, response=response, **kwargs)
 
     @classmethod
     def create_table(cls, skip_exists=False):
