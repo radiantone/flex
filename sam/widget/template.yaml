@@ -54,7 +54,7 @@ Resources:
         Widget:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /v3_0/hello
+            Path: /v3/hello
             Method: get
 
   CatalogFileFunction:
@@ -107,7 +107,7 @@ Resources:
         Widget:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /v2_0/hello
+            Path: /v2/hello
             Method: get
 
   HelloAPIDocsFunction:
@@ -237,7 +237,7 @@ Outputs:
 
   HelloV2Api:
     Description: "API Gateway endpoint URL for Prod stage for Fast function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/v2_0/hello/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/v2/hello/"
   HelloV2Function:
     Description: "Fast Lambda Function ARN"
     Value: !GetAtt HelloV2Function.Arn
@@ -267,7 +267,7 @@ Outputs:
 
   HelloV3Api:
     Description: "API Gateway endpoint URL for Prod stage for Fast function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/v3_0/hello/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/v3/hello/"
   HelloV3Function:
     Description: "Fast Lambda Function ARN"
     Value: !GetAtt HelloV3Function.Arn

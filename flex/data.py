@@ -1,8 +1,11 @@
 import logging
+import warnings
 
 from flex.backends import FlexBackendFactory
 from pydantic.dataclasses import dataclass
 
+
+warnings.filterwarnings('ignore')
 logging.basicConfig(
     level=logging.INFO,
     format="%(filename)s: "
@@ -84,8 +87,6 @@ class FlexObject:
         }
         if nexttoken:
             kwargs['nexttoken'] = nexttoken
-
-        print(kwargs)
 
         return backend.execute(cls, statement, params, response=response, **kwargs)
 

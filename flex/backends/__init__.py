@@ -62,8 +62,41 @@ class DynamoDBBackend(FlexBackend):
             return "NEXT PAGE"
 
     def save(self, dataobject):
+        """ Traverse tree of objects saving each to their respective tables """
+
+        def persist(dobj):
+            from flex.data import FlexObject
+
+            for attr in dir(dobj):
+                if attr.find('_') == 0:
+                    continue
+
+                logging.debug("persist: attr is %s", attr)
+                if isinstance(getattr(dobj, attr), FlexObject):
+                    logging.debug("persist: detected FlexObject is %s", attr)
+                    getattr(dobj, attr).save()
+                    persist(getattr(dobj, attr))
+                if type(getattr(dobj, attr)) is list:
+                    logging.debug("persist: detected list is %s %s", attr, getattr(dobj, attr))
+                    for subobj in getattr(dobj, attr):
+                        logging.debug("persist: sub object is %s", attr)
+                        if isinstance(subobj, FlexObject):
+                            subobj.save()
+                            persist(subobj)
+
+        logging.debug("persisting dataobject %s", dataobject)
+        persist(dataobject)
+
         _dao = asdict(dataobject)
-        logging.info("Saving %s", _dao)
+        delkeys = []
+        for key in _dao:
+            if key.find("_") == 0:
+                delkeys += [key]
+
+        for key in delkeys:
+            del _dao[key]
+
+        logging.debug("Saving %s", _dao)
         table = self.dynamodb.Table(dataobject.__class__.__name__)
 
         from datetime import datetime
@@ -74,19 +107,20 @@ class DynamoDBBackend(FlexBackend):
 
         if hasattr(dataobject, "updated"):
             setattr(dataobject, "updated", timestamp)
+
         table.put_item(Item=_dao)
 
         return True
 
     def delete(self, cls_or_self, *args, **kwargs):
-        logging.info("Deleting %s %s %s", cls_or_self, args, kwargs)
+        logging.debug("Deleting %s %s %s", cls_or_self, args, kwargs)
 
         if isinstance(cls_or_self, type):
-            logging.info("DELETE CLASS METHOD")
+            logging.debug("DELETE CLASS METHOD")
             table = cls_or_self.__name__
             fields = args[0]
         else:
-            logging.info("DELETE INSTANCE METHOD")
+            logging.debug("DELETE INSTANCE METHOD")
             table = cls_or_self.__class__.__name__
             fields = {
                 cls_or_self.primary_key: getattr(cls_or_self, cls_or_self.primary_key),
@@ -105,7 +139,7 @@ class DynamoDBBackend(FlexBackend):
             params += [val]
 
         sql = f"DELETE from {table} where {where}"
-        logging.info("SQL %s %s", sql, params)
+        logging.debug("SQL %s %s", sql, params)
         return cls_or_self.execute(sql, params, response=True)
 
     def find(self, cls, match, response=False):
@@ -131,6 +165,7 @@ class DynamoDBBackend(FlexBackend):
             [dataobject.id],
             response=response,
         )
+        logging.debug("OBJECTS %s %s %s",'SELECT * FROM "{cls.__name__}" where {backref}=?', [backref, dataobject.id],  objects)
         return objects
 
     """
@@ -183,6 +218,7 @@ class DynamoDBBackend(FlexBackend):
         _schema = {}
 
         for name, val in _class.__dict__.items():
+            logging.debug("NAME,VAL %s,%s", name, val)
             if name.find("_") == 0:
                 continue
             if val.__class__.__name__ in self.TYPES:
@@ -190,6 +226,7 @@ class DynamoDBBackend(FlexBackend):
 
         for base in _class.__bases__:
             for name, val in base.__dict__.items():
+                logging.debug("BASE NAME,VAL %s,%s", name, val)
                 if name.find("_") == 0:
                     continue
                 if val.__class__.__name__ in self.TYPES:

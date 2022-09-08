@@ -1,6 +1,28 @@
 from flex.data import FlexObject
 from dataclasses import field
 from pydantic.dataclasses import dataclass
+from typing import List
+import logging
+
+@dataclass
+class Availability(FlexObject):
+
+    created_at: int = 0
+    updated_at: int = 0
+    device_id: int = -1
+    available_datetime: int = 0
+    expires_datetime: int = 0
+    geo_right_type: str = ""
+    geo_value_type: str = ""
+    geo_value: str = ""
+    bundle_id: str = ""
+    geok_da_id: str = ""
+    available_finalized: bool = False
+    expires_finalized: bool = False
+    device_location_sharing: dict = field(default_factory=dict)
+
+    def save(self, create_table=True):
+        super(Availability, self).save(create_table=create_table)
 
 
 @dataclass
@@ -28,43 +50,22 @@ class Bundle(FlexObject):
     content_entitlement: str = ""
     properties: dict = field(default_factory=dict)
     brand: str = ""
-    _avails = []
+    _avails: List[Availability] = field(default_factory=list)
 
     @property
-    def availabilities(self) -> []:
-        avails = self.relation(Availability, backref='bundle_id')
+    def avails(self) -> List[Availability]:
+        avails = self.relation(Availability, backref='asset_id')
         return avails
 
-    @availabilities.setter
-    def availabilities(self, avails: []) -> None:
+    @avails.setter
+    def avails(self, avails: List[Availability]) -> None:
         for avail in avails:
             avail.bundle_id = self.id
-
+            avail.save()
         self._avails = avails
 
     def save(self, create_table=True):
         super(Bundle, self).save(create_table=create_table)
-
-        for avail in self._avails:
-            avail.save()
-
-
-@dataclass
-class Availability(FlexObject):
-
-    created_at: int = 0
-    updated_at: int = 0
-    device_id: int = -1
-    available_datetime: int = 0
-    expires_datetime: int = 0
-    geo_right_type: str = ""
-    geo_value_type: str = ""
-    geo_value: str = ""
-    bundle_id: str = ""
-    geok_da_id: str = ""
-    available_finalized: bool = False
-    expires_finalized: bool = False
-    device_location_sharing: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -86,10 +87,10 @@ class Asset(FlexObject):
     channel_id: str = ""
     source_stormflow_id: str = ""
     version: int = 0
-    _playback_features: dict = field(default_factory=dict)
-    _partner_field: dict = field(default_factory=dict)
+    playback_features: dict = field(default_factory=dict)
+    partner_field: dict = field(default_factory=dict)
     destination_platform: str = ""
-    _properties: dict = None
+    properties: dict = field(default_factory=dict)
     source_stream_provider: str = ""
     asset_version: int = 0
     alid_id: str = ""
@@ -97,46 +98,19 @@ class Asset(FlexObject):
     media_source_namespace: str = ""
     delivery_partner_id: str = ""
     playback_type: str = PlaybackType.LIVE
-    _bundles = []
+    _bundles: List[Bundle] = field(default_factory=list)
 
     @property
-    def bundles(self) -> []:
+    def bundles(self) -> List[Bundle]:
         bundles = self.relation(Bundle, backref='asset_id')
         return bundles
 
     @bundles.setter
-    def bundles(self, bundles: []) -> None:
+    def bundles(self, bundles: List[Bundle]) -> None:
         for bundle in bundles:
             bundle.asset_id = self.id
-
+            bundle.save()
         self._bundles = bundles
-
-    @property
-    def playback_features(self) -> dict:
-        return self._playback_features
-
-    @playback_features.setter
-    def playback_features(self, playback_features: dict) -> None:
-        self._playback_features = playback_features
-
-    @property
-    def partner_field(self) -> dict:
-        return self._playback_features
-
-    @partner_field.setter
-    def partner_field(self, partner_field: dict) -> None:
-        self._partner_field = partner_field
-
-    @property
-    def properties(self) -> dict:
-        return self._playback_features
-
-    @properties.setter
-    def properties(self, properties: dict) -> None:
-        self._properties = properties
 
     def save(self, create_table=True):
         super(Asset, self).save(create_table=create_table)
-
-        for bundle in self._bundles:
-            bundle.save()

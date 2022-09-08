@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi import APIRouter
 from mangum import Mangum
 from fastapi.responses import FileResponse
-
 from models import Asset, Bundle, Availability
+
 from fastapi.openapi.docs import (
     get_swagger_ui_html,
     get_swagger_ui_oauth2_redirect_html,
@@ -35,10 +35,10 @@ async def file(file):
     return FileResponse("static/"+file)
 
 
-@app.post("/asset/", response_model=Asset)
-async def post_asset(asset: Asset) -> Asset:
+@app.post("/asset/{assetid}", response_model=Asset)
+async def post_asset(assetid, asset: Asset) -> Asset:
+    asset.id = assetid
     asset.save()
-
     return asset
 
 
