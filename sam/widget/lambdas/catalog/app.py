@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from mangum import Mangum
 from fastapi.responses import FileResponse
 from models import Asset, Bundle, Availability
+import rule_engine
 
 from fastapi.openapi.docs import (
     get_swagger_ui_html,
@@ -44,10 +45,17 @@ async def post_asset(assetid, asset: Asset) -> Asset:
 
 @app.get("/asset/{assetid}", response_model=Asset)
 async def get_asset(assetid) -> Asset:
+    from dataclasses import asdict
 
     results = Asset.find({'id': assetid}, response=True)
 
     asset: Asset = results.first()
+
+    rule = rule_engine.Rule(
+        'playback_type == "LIVE" and created_at == 1'
+    )
+
+    print("MATCHES", rule.matches(asdict(asset)))
     return asset
 
 handler = Mangum(app)
