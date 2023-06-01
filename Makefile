@@ -69,7 +69,7 @@ clean:
 
 .PHONY: tests
 tests: format lint
-	pytest
+	pytest tests
 	
 .PHONY: all
 all: format lint update docs install up tests stop clean
