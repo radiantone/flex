@@ -72,5 +72,5 @@ tests: format lint
 	pytest
 	
 .PHONY: all
-all: format lint update docs install tests clean
+all: format lint update docs install up tests stop clean
 	git status
