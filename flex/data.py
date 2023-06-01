@@ -1,11 +1,11 @@
 import logging
 import warnings
 
-from flex.backends import FlexBackendFactory
 from pydantic.dataclasses import dataclass
 
+from flex.backends import FlexBackendFactory
 
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 logging.basicConfig(
     level=logging.INFO,
     format="%(filename)s: "
@@ -66,8 +66,8 @@ class FlexObject:
         ]
 
     @class_or_instancemethod
-    def delete(cls_or_self, *args, **kwargs):
-        return backend.delete(cls_or_self, *args, **kwargs)
+    def delete(cls, *args, **kwargs):
+        return backend.delete(cls, *args, **kwargs)
 
     @classmethod
     def find(cls, match, response=False):
@@ -77,16 +77,24 @@ class FlexObject:
         return backend.relation(self, cls, backref=backref, response=response)
 
     @classmethod
-    def execute(cls, statement, params, response=False, consistentread=True, nexttoken=None,
-                returnconsumedcapacity='NONE', limit=1):
+    def execute(
+        cls,
+        statement,
+        params,
+        response=False,
+        consistentread=True,
+        nexttoken=None,
+        returnconsumedcapacity="NONE",
+        limit=1,
+    ):
 
         kwargs = {
-            'consistentread':consistentread,
-            'returnconsumedcapacity': returnconsumedcapacity,
-            'limit':limit
+            "consistentread": consistentread,
+            "returnconsumedcapacity": returnconsumedcapacity,
+            "limit": limit,
         }
         if nexttoken:
-            kwargs['nexttoken'] = nexttoken
+            kwargs["nexttoken"] = nexttoken
 
         return backend.execute(cls, statement, params, response=response, **kwargs)
 

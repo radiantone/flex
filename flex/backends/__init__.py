@@ -62,13 +62,13 @@ class DynamoDBBackend(FlexBackend):
             return "NEXT PAGE"
 
     def save(self, dataobject):
-        """ Traverse tree of objects saving each to their respective tables """
+        """Traverse tree of objects saving each to their respective tables"""
 
         def persist(dobj):
             from flex.data import FlexObject
 
             for attr in dir(dobj):
-                if attr.find('_') == 0:
+                if attr.find("_") == 0:
                     continue
 
                 logging.debug("persist: attr is %s", attr)
@@ -77,7 +77,9 @@ class DynamoDBBackend(FlexBackend):
                     getattr(dobj, attr).save()
                     persist(getattr(dobj, attr))
                 if type(getattr(dobj, attr)) is list:
-                    logging.debug("persist: detected list is %s %s", attr, getattr(dobj, attr))
+                    logging.debug(
+                        "persist: detected list is %s %s", attr, getattr(dobj, attr)
+                    )
                     for subobj in getattr(dobj, attr):
                         logging.debug("persist: sub object is %s", attr)
                         if isinstance(subobj, FlexObject):
@@ -165,7 +167,12 @@ class DynamoDBBackend(FlexBackend):
             [dataobject.id],
             response=response,
         )
-        logging.debug("OBJECTS %s %s %s",'SELECT * FROM "{cls.__name__}" where {backref}=?', [backref, dataobject.id],  objects)
+        logging.debug(
+            "OBJECTS %s %s %s",
+            'SELECT * FROM "{cls.__name__}" where {backref}=?',
+            [backref, dataobject.id],
+            objects,
+        )
         return objects
 
     """
@@ -173,18 +180,29 @@ class DynamoDBBackend(FlexBackend):
     NextToken='string',
     ReturnConsumedCapacity='INDEXES'|'TOTAL'|'NONE',
     Limit=123"""
-    def execute(self, cls, statement, params, response=False, consistentread=True, nexttoken=None, returnconsumedcapacity='NONE', limit=1):
+
+    def execute(
+        self,
+        cls,
+        statement,
+        params,
+        response=False,
+        consistentread=True,
+        nexttoken=None,
+        returnconsumedcapacity="NONE",
+        limit=1,
+    ):
         import botocore
 
         logging.debug("EXECUTE %s %s", statement, params)
 
         kwargs = {
-            'ConsistentRead': consistentread,
-            'ReturnConsumedCapacity': returnconsumedcapacity
-            #'Limit': limit
+            "ConsistentRead": consistentread,
+            "ReturnConsumedCapacity": returnconsumedcapacity
+            # 'Limit': limit
         }
         if nexttoken:
-            kwargs['NextToken'] = nexttoken
+            kwargs["NextToken"] = nexttoken
 
         try:
             output = self.dynamodb.meta.client.execute_statement(
