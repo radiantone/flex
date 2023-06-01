@@ -233,7 +233,6 @@ class DynamoDBBackend(FlexBackend):
         """Create AppSync GraphQL schema from class"""
         pass
 
-
     @classmethod
     def create_table(self, cls, skip_exists=False):
         """Create DynamoDB table from class"""
