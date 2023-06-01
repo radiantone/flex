@@ -31,6 +31,14 @@ lint: setup-install
 setup-install:
 	python setup.py install
 
+.PHONY: up
+up:
+	docker compose up -d
+
+.PHONY: stop
+stop:
+	docker compose stop
+
 .PHONY: install
 install: depends init
 	. venv/bin/activate && ( \
