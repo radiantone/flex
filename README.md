@@ -1,6 +1,6 @@
 <img src="./img/logo.png" width="200">
 
-_Dataclass aware ORM with pluggable backends (DynamoDB included)_
+_Dataclass aware ORM with pluggable backends (DynamoDB included)_.
 
 ## Install
 Install virtual environment and dependencies using `make install`
