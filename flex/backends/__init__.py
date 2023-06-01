@@ -229,7 +229,14 @@ class DynamoDBBackend(FlexBackend):
                 return [cls(**item) for item in output["Items"]]  # ResultList(output)
 
     @classmethod
+    def create_schema(self, cls, skip_exists=False):
+        """Create AppSync GraphQL schema from class"""
+        pass
+
+
+    @classmethod
     def create_table(self, cls, skip_exists=False):
+        """Create DynamoDB table from class"""
         import botocore
 
         _class = cls
