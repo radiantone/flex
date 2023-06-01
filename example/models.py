@@ -35,8 +35,8 @@ class Widget(Inventory):
 
         self._buttons = buttons
 
-    def save(self):
-        super(Widget, self).save()
+    def save(self, create_table=True):
+        super(Widget, self).save(create_table=create_table)
 
         for button in self._buttons:
             button.save()
