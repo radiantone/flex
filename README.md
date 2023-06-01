@@ -19,6 +19,7 @@ Start the compose stack, which runs local versions of dynamodb and api gateway
 ## Usage
 Run the example below using:
 ```bash
+(venv) $ export DYNAMODB=http://localhost:8009
 (venv) $ python example/widgets.py
 ````
 

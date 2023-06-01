@@ -1,4 +1,5 @@
 flask
+rule-engine
 aws-wsgi
 fastapi
 mangum
